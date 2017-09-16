@@ -60,8 +60,20 @@ class ReutherAPIWrapper:
         return self.itemslist
 
 
+    def get_item_content(self, metaItem):
+        _content_response =\
+            requests.get('{}/item?id={}&token={}'
+                         .format(SERVICE_URL, metaItem.id, self._authToken))
+        print(_content_response.text)
+
+
 if __name__ == '__main__':
     reutherAPIWrapper = ReutherAPIWrapper("HackZurichAPI", "8XtQb447")
     channel_list = reutherAPIWrapper.get_channel_list()
-    for i in reutherAPIWrapper.get_items_meta(list(channel_list.values())[0]):
+    items_list = reutherAPIWrapper.get_items_meta(list(channel_list.values())[0])
+    for i in items_list:
         print(i.headline)
+        if i.headline == 'en':
+            reutherAPIWrapper.get_item_content(i)
+
+    #reutherAPIWrapper.get_item_content(items_list[0])
