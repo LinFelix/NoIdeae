@@ -5,8 +5,16 @@ from itertools import combinations
 import glob
 import networkx as nx
 import numpy as np
+import pickle
+import os
+
+from bokeh.io import show, output_file
 from bokeh.models import (Plot, Range1d, MultiLine, Circle, HoverTool,
                           TapTool, BoxSelectTool)
+
+from bokeh.models.graphs import (from_networkx, NodesAndLinkedEdges,
+                                 EdgesAndLinkedNodes)
+
 
 
 
@@ -93,7 +101,6 @@ class ArticleData:
 
     def build_graph(self):
         relevances = self.get_relevancy()
-        print(relevances)
         graph = nx.Graph()
         for ele in relevances:
             n1 = ele[0]
@@ -103,6 +110,28 @@ class ArticleData:
         return graph
 
     def draw_graph(self):
+        plot = Plot(plot_width=400, plot_height=400,
+                    x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
+        plot.title.text = "Graph Interaction Demonstration"
+
+        plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())
+        graph_file = os.path.join(os.getcwd(), 'data/graph')
+        if not os.path.isfile(graph_file):
+            graph = self.build_graph()
+            with open(graph_file, 'w') as g_file:
+                pickle.dump(graph, g_file)
+        else:
+            with open(graph_file, 'r+') as g_file:
+                graph = pickle.load(g_file)
+        graph_renderer = from_networkx(graph, nx.spring_layout, scale=1,
+                                       center=(0, 0))
+        graph_renderer.selection_policy = NodesAndLinkedEdges()
+        graph_renderer.inspection_policy = EdgesAndLinkedNodes()
+
+        plot.renderers.append(graph_renderer)
+        output_file("interactive_graphs.html")
+        show(plot)
+
 
 
 

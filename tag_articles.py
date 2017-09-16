@@ -59,6 +59,4 @@ if __name__=='__main__':
     output_dir = os.getcwd()
     output_dir += '/data/'
     art_data.parse_data(output_dir, 0.5, 10)
-    graph = art_data.build_graph()
-    print(graph.nodes())
-
+    art_data.draw_graph()
