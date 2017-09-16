@@ -3,24 +3,18 @@
 import requests
 import xml.etree.ElementTree as ET
 
+"""
+
+
+
+"""
+
 
 USERNAME = "YOUR USERNAME"
 PASSWORD = "YOUR PASSWORD"
 AUTH_URL = "https://commerce.reuters.com/rmd/rest/xml/"
-SERVICE_URL = "http://rmb.reuters.com/rmd/rest/xml/"
-
-
-class MetaItem:
-
-    def __init__(self, content):
-        self.id = content[0].text
-        self.version = content[2].text
-        self.dateCreated = content[3].text
-        self.source = content[5].text
-        self.language = content[6].text
-        self.headline = content[7].text
-        self.mediatype = content[8].text
-        self.channel = content[10].text
+SERVICE_URL_XML = "http://rmb.reuters.com/rmd/rest/xml/"
+SERVICE_URL = "http://rmb.reuters.com/rmd/rest/json/"
 
 
 class ReutherAPIWrapper:
@@ -37,7 +31,7 @@ class ReutherAPIWrapper:
 
     def get_channel_list(self):  # without categories
         _channel_list_response = requests.get(
-            '{}/channels?&token={}'.format(SERVICE_URL, self._authToken))
+            '{}/channels?&token={}'.format(SERVICE_URL_XML, self._authToken))
         _channel_list_tree_root = ET.fromstring(_channel_list_response.text)
         for channel_information in _channel_list_tree_root:
             try:
@@ -48,32 +42,38 @@ class ReutherAPIWrapper:
         return self.available_channels
 
     def get_items_meta(self, channel_alias):
-        _items_respons =\
-            requests.get('{}/items?channel={}&token={}'
-                         .format(SERVICE_URL, channel_alias, self._authToken))
-        self.itemslist = []
-        for result in ET.fromstring(_items_respons.text):
-            try:
-                self.itemslist.append(MetaItem(result))
-            except:
-                pass  # bad xml
-        return self.itemslist
+        return requests.get('{}items?channel={}&token={}'.format(SERVICE_URL, channel_alias, self._authToken)).json()['results']
+        #items_meta_list =
+        #for items in items_meta.json():
+        #    items_meta_list[items] = items_meta.json()[items]
+        #return items_meta_list
 
+    def get_item_content(self, item):
+        return requests.get('{}item?id={}&token={}'.format(SERVICE_URL, item['id'], self._authToken)).json()
 
-    def get_item_content(self, metaItem):
-        _content_response =\
-            requests.get('{}/item?id={}&token={}'
-                         .format(SERVICE_URL, metaItem.id, self._authToken))
-        print(_content_response.text)
+    def throw_out_link_list(self, mylist):
+        return list(filter(lambda x: x['headline'] != 'OUSWDM Link List', mylist))
 
+    def has_text(self, item):
+        return item['productlabel'] == 'text'
 
 if __name__ == '__main__':
     reutherAPIWrapper = ReutherAPIWrapper("HackZurichAPI", "8XtQb447")
     channel_list = reutherAPIWrapper.get_channel_list()
-    items_list = reutherAPIWrapper.get_items_meta(list(channel_list.values())[0])
-    for i in items_list:
-        print(i.headline)
-        if i.headline == 'en':
-            reutherAPIWrapper.get_item_content(i)
+    items_list = reutherAPIWrapper.throw_out_link_list(reutherAPIWrapper.get_items_meta(list(channel_list.values())[0]))
+    for i in range(200):
+        content = reutherAPIWrapper.get_item_content(items_list[i])
+        if reutherAPIWrapper.has_text(content):
+            print(content['body_xhtml'])
+    # printing headlines
+    #for i in items_list:
+    #    print(i['headline'])
+
+
+
+    #for i in items_list:
+    #    print(i.headline)
+    #    if i.headline == 'en':
+    #        reutherAPIWrapper.get_item_content(i)
 
     #reutherAPIWrapper.get_item_content(items_list[0])
