@@ -89,6 +89,7 @@ class Data:
                             except KeyError:
                                 self.entities_relevant_cooccurences[entity2].update({entity1: 1})
 
+    def print_info(self):
         for entity, count in self.entities_relevant_appearances.items():
             print(entity+": {}".format(count))
 
@@ -131,7 +132,7 @@ class Data:
         graph.node_renderer.glyph = Circle(size=15, fill_color=Spectral4[0])
 
         graph.node_renderer.data_source.column_names.append("entity")
-        graph.node_renderer.data_source.data.update({"entity": 
+        graph.node_renderer.data_source.data.update({"entity":
                                                          self.all_entities})
 
         graph.node_renderer.glyph = Circle(size=8, fill_color=Spectral4[0])
@@ -165,5 +166,4 @@ if __name__ == '__main__':
 
     data_graph = Data(datadir)
     data_graph.build_graph()
-    print(data_graph.graph.nodes())
     data_graph.draw_graph()
