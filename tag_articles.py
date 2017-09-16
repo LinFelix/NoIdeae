@@ -57,7 +57,7 @@ if __name__=='__main__':
     print('Done.')
     # Start parsing data
     art_data = ArticleData()
-    art_data.parse_data(output_dir)
+    art_data.parse_data(output_dir, 0.6, 10)
     print()
 
 
