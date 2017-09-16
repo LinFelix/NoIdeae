@@ -17,7 +17,8 @@ calais_url = 'https://api.thomsonreuters.com/permid/calais'
 
 
 class queryPerm(object):
-    def __init__(self, input_dir, output_dir, access_token='LZUy2XvmGgFwkO9BSXQ1SSLEDuQUjGrg'):
+    def __init__(self, input_dir, output_dir, access_token="Jz5ghWp8LbjYHL83WECGF3AUXV3Xk8Jm"):
+        #'LZUy2XvmGgFwkO9BSXQ1SSLEDuQUjGrg'):
         try:
             if not os.path.exists(input_dir):
                 print('The file {} does not exist'.format(input_dir))
