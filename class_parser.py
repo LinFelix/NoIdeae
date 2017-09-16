@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function, division
 import json
+from itertools import combinations
 import glob
 
 
@@ -38,12 +39,20 @@ class Article:
     def get_entities(self):
         return self.entities.keys()
 
+    def get_relevance(self, entity):
+        return self.entities[entity][0]
+
+    def get_rel_prod(self, ent_1, ent_2):
+        if ent_1 in self.important_entities.keys() and ent_2 in \
+                self.important_entities.keys():
+            return self.get_relevance(ent_1) * self.get_relevance(ent_2)
+
     def get_rel_entities(self):
         return self.important_entities.keys()
 
     def get_freq_entities(self, n_threshold):
         freq_ent = {}
-        for ent, (rel, n_count) in self.entities.iteritems():
+        for ent, (rel, n_count) in self.entities.items():
             if n_count >= n_threshold:
                 freq_ent[ent] = n_count
 
@@ -52,26 +61,27 @@ class Article:
 
 class ArticleData:
     def __init__(self):
-        self.rel_entities = {}
-        self.freq_entities = {}
+        self.entities = set([])
         self.data = []
 
     def parse_data(self, folder_path, threshold, n_threshold):
         for file in glob.glob(folder_path + "*.json"):
             self.data.append(Article(file, threshold))
-            rel_entities = self.data[-1].get_rel_entities()
-            freq_entities = self.data[-1].get_freq_entities()
-            for entity in rel_entities:
-                if self.rel_entities.has_key(entity):
-                    self.rel_entities[entity].update(rel_entities)
-                else:
-                    self.rel_entities[entity] = set(rel_entities)
+            self.entities.update(self.data.keys())
 
-            for entity in freq_entities:
-                if self.freq_entities.has_key(entity):
-                    self.freq_entities[entity].update(freq_entities)
+    def get_relevancy(self):
+        ent_copy = list(self.entities)
+        relevances = {}
+        for ent_1, ent_2 in combinations(ent_copy, 2):
+            for art in self.data:
+                key = tuple(ent_1, ent_2)
+                if key not in relevances:
+                    relevances[key] = [art.get_rel_prod(ent_1, ent_2)]
                 else:
-                    self.freq_entities[entity] = set(freq_entities)
+                    relevances[key].append(art.get_rel_prod(ent_1, ent_2))
+        return relevances
+
+
 
 
 
