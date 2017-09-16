@@ -3,6 +3,7 @@
 import requests
 import xml.etree.ElementTree as ET
 import os.path
+from time import sleep
 
 """
 How to use this script?
@@ -13,8 +14,8 @@ look in the main part down below
 """
 
 
-USERNAME = "andanis@student.ethz.ch"
-PASSWORD = "Ch4ngeM3"
+USERNAME = "vwegmayr@gmail.com"
+PASSWORD = "Deca9026"
 AUTH_URL = "https://commerce.reuters.com/rmd/rest/xml/"
 SERVICE_URL_XML = "http://rmb.reuters.com/rmd/rest/xml/"
 SERVICE_URL = "http://rmb.reuters.com/rmd/rest/json/"
@@ -53,7 +54,13 @@ class ReutherAPIWrapper:
         return requests.get('{}items?channel={}&token={}'.format(SERVICE_URL, channel_alias, self._authToken)).json()['results']
 
     def get_item_content(self, item):
-        return requests.get('{}item?id={}&token={}'.format(SERVICE_URL, item['id'], self._authToken)).json()
+        ret = requests.get('{}item?id={}&token={}'.format(SERVICE_URL, item['id'], self._authToken))
+        if ret.status_code != 200:
+            print(ret)
+            while ret.status_code != 200:
+                sleep(63)
+                ret = requests.get('{}item?id={}&token={}'.format(SERVICE_URL, item['id'], self._authToken))
+        return ret.json()
 
     def get_items_meta_without_link_list(self, channel_alias):
         return list(filter(lambda x: x['headline'] != 'OUSWDM Link List', self.get_items_meta(channel_alias)))
@@ -73,6 +80,7 @@ def save_all_text(new_path):
         count = 0
         raw = ReutherAPIWrapper("HackZurichAPI", "8XtQb447")  # instantiate and gain access token
         channels = raw.get_channel_aliasis()  # get a list of channels
+        print(channels)
         for channel in channels:
             items_list = raw.get_items_meta_without_link_list(channel)
             for items in items_list:
@@ -82,6 +90,7 @@ def save_all_text(new_path):
                     with open(new_path + '/' + str(count) + ".txt", 'w') as f:
                         f.write(text)
                     count += 1
+                    print(count)
 
 
 if __name__ == '__main__':
