@@ -17,6 +17,7 @@ class Persons(object):
             print(self.data[idx])
 
     def query(self, info):
+        info = str(info)
         response = []
         for data in self.data:
             for key in data.keys():
@@ -79,4 +80,4 @@ if __name__=='__main__':
     parser = Parser(data_path)
 
     parser.load_data('sampletext.json')
-    print(parser.query('European Union'))
+    print(parser.query(3))
