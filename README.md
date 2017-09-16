@@ -1,2 +1,0 @@
-# NoIdeae
-HackZurich2017
