@@ -2,7 +2,9 @@
 
 from flask import Flask, request, redirect, render_template
 from libs import reutherAPIwrapper as rw
+from graph import Data
 app = Flask(__name__)
+
 
 @app.route('/')
 def hello_world():
@@ -11,10 +13,13 @@ def hello_world():
 
 @app.route('/',methods=['POST'])
 def post_choosen_channel_alias():
-    print("blubb")
-    print(request.json['alias'])
-    return "Hello world"
+    topics = request.json['alias']
 
+    data_graph = Data()
+    data_graph.build_graph()
+    data_graph.draw_graph(topics)
+
+    return "Hello world"
 
 
 def pass_list_of_tags(list_of_tags):

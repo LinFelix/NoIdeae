@@ -13,13 +13,15 @@ from bokeh.models.renderers import GraphRenderer
 
 
 class Data:
-    def __init__(self, datadir='data'):
+    def __init__(self, datadir='newdata', MIN_RELEVANCE=0.6, MIN_SCORE=0.9):
         self.all_entities = []
         self.all_relevant_topics = []
         self.entities_relevant_appearances = {}
         self.entities_relevant_topics = {}
         self.entities_relevant_cooccurences = {}
         self.graph = None
+        self.MIN_RELEVANCE = MIN_RELEVANCE
+        self.MIN_SCORE = MIN_SCORE
         self.parse(datadir)
 
     def parse(self, datadir):
@@ -35,7 +37,7 @@ class Data:
                 except KeyError:
                     continue
 
-                if type_group == 'entities' and tag["relevance"] >= MIN_RELEVANCE:
+                if type_group == 'entities' and tag["relevance"] >= self.MIN_RELEVANCE:
 
                     entity = tag["name"]
                     article_entities.append(entity)
@@ -48,7 +50,7 @@ class Data:
                         count = self.entities_relevant_appearances[entity]
                         self.entities_relevant_appearances.update({entity: count+1})
 
-                if type_group == "topics" and tag["score"] >= MIN_SCORE:
+                if type_group == "topics" and tag["score"] >= self.MIN_SCORE:
                     topic = tag["name"]
                     article_topics.append(topic)
                     if topic not in self.all_relevant_topics:
@@ -121,7 +123,7 @@ class Data:
 
         self.graph = nx.from_dict_of_dicts(dod)
 
-    def draw_graph(self):
+    def draw_graph(self, topics):
         plot = Plot(plot_width=1000, plot_height=1000, x_range=Range1d(-1.1,1.1), y_range=Range1d(-1.1,1.1))
 
         plot.add_tools(HoverTool(tooltips=[("entity", "@entity")]), TapTool(), BoxSelectTool(), WheelZoomTool())
@@ -153,7 +155,7 @@ class Data:
 
         plot.renderers.append(graph)
 
-        output_file("networkx_graph.html")
+        #output_file("networkx_graph.html")
         show(plot)
 
 
