@@ -13,11 +13,11 @@ def hello_world():
 
 @app.route('/',methods=['POST'])
 def post_choosen_channel_alias():
-    topics = request.json['alias']
+    query_topics = request.json['alias']
 
-    data_graph = Data()
+    data_graph = Data(query_topics)
     data_graph.build_graph()
-    data_graph.draw_graph(topics)
+    data_graph.draw_graph()
 
     return "Hello world"
 

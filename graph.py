@@ -13,7 +13,7 @@ from bokeh.models.renderers import GraphRenderer
 
 
 class Data:
-    def __init__(self, datadir='newdata', MIN_RELEVANCE=0.6, MIN_SCORE=0.9):
+    def __init__(self, query_topics, datadir='newdata', MIN_RELEVANCE=0.6, MIN_SCORE=0.9):
         self.all_entities = []
         self.all_relevant_topics = []
         self.entities_relevant_appearances = {}
@@ -22,74 +22,92 @@ class Data:
         self.graph = None
         self.MIN_RELEVANCE = MIN_RELEVANCE
         self.MIN_SCORE = MIN_SCORE
-        self.parse(datadir)
+        self.parse(datadir, query_topics)
 
-    def parse(self, datadir):
+    def parse(self, datadir, query_topics):
         for article_file in os.listdir(datadir):
             article_data = json.load(open(datadir+"/"+article_file))
             article_entities = []
             article_topics = []
 
+            any_topic_present = False
             for tag in article_data.values():
-
                 try:
                     type_group = tag['_typeGroup']
                 except KeyError:
                     continue
 
-                if type_group == 'entities' and tag["relevance"] >= self.MIN_RELEVANCE:
-
-                    entity = tag["name"]
-                    article_entities.append(entity)
-
-                    if entity not in self.all_entities:
-                        self.all_entities.append(entity)
-
-                        self.entities_relevant_appearances.update({entity: 1})
-                    else:
-                        count = self.entities_relevant_appearances[entity]
-                        self.entities_relevant_appearances.update({entity: count+1})
-
                 if type_group == "topics" and tag["score"] >= self.MIN_SCORE:
                     topic = tag["name"]
-                    article_topics.append(topic)
-                    if topic not in self.all_relevant_topics:
-                        self.all_relevant_topics.append(topic)
+                    if topic not in query_topics:
+                        continue
+                    else:
+                        any_topic_present=True
 
-            for topic in article_topics:
+            if any_topic_present:
+                for tag in article_data.values():
 
-                for entity in article_entities:
                     try:
-                        topics = self.entities_relevant_topics[entity]
-                        try:
-                            count = topics[topic]
-                            self.entities_relevant_topics[entity].update({topic: count+1})
-                        except KeyError:
-                            self.entities_relevant_topics[entity].update({topic: 1})
+                        type_group = tag['_typeGroup']
                     except KeyError:
-                        self.entities_relevant_topics.update({entity: {topic: 1}})
+                        continue
 
-            for entity1 in article_entities:
-                for entity2 in article_entities:
-                    if entity1 is not entity2:
+                    if type_group == "topics" and tag["score"] >= self.MIN_SCORE:
+                        topic = tag["name"]
+                        if topic not in query_topics:
+                            continue
+                        article_topics.append(topic)
+                        if topic not in self.all_relevant_topics:
+                            self.all_relevant_topics.append(topic)
 
-                        if entity1 not in self.entities_relevant_cooccurences:
-                            self.entities_relevant_cooccurences.update({entity1: {entity2: 1}})
+                    if type_group == 'entities' and tag["relevance"] >= self.MIN_RELEVANCE:
+
+                        entity = tag["name"]
+                        article_entities.append(entity)
+
+                        if entity not in self.all_entities:
+                            self.all_entities.append(entity)
+
+                            self.entities_relevant_appearances.update({entity: 1})
                         else:
-                            try:
-                                count = self.entities_relevant_cooccurences[entity1][entity2]
-                                self.entities_relevant_cooccurences[entity1].update({entity2: count+1})
-                            except KeyError:
-                                self.entities_relevant_cooccurences[entity1].update({entity2: 1})
+                            count = self.entities_relevant_appearances[entity]
+                            self.entities_relevant_appearances.update({entity: count+1})
 
-                        if entity2 not in self.entities_relevant_cooccurences:
-                            self.entities_relevant_cooccurences.update({entity2: {entity1: 1}})
-                        else:
+
+                for topic in article_topics:
+
+                    for entity in article_entities:
+                        try:
+                            topics = self.entities_relevant_topics[entity]
                             try:
-                                count = self.entities_relevant_cooccurences[entity2][entity1]
-                                self.entities_relevant_cooccurences[entity2].update({entity1: count+1})
+                                count = topics[topic]
+                                self.entities_relevant_topics[entity].update({topic: count+1})
                             except KeyError:
-                                self.entities_relevant_cooccurences[entity2].update({entity1: 1})
+                                self.entities_relevant_topics[entity].update({topic: 1})
+                        except KeyError:
+                            self.entities_relevant_topics.update({entity: {topic: 1}})
+
+                for entity1 in article_entities:
+                    for entity2 in article_entities:
+                        if entity1 is not entity2:
+
+                            if entity1 not in self.entities_relevant_cooccurences:
+                                self.entities_relevant_cooccurences.update({entity1: {entity2: 1}})
+                            else:
+                                try:
+                                    count = self.entities_relevant_cooccurences[entity1][entity2]
+                                    self.entities_relevant_cooccurences[entity1].update({entity2: count+1})
+                                except KeyError:
+                                    self.entities_relevant_cooccurences[entity1].update({entity2: 1})
+
+                            if entity2 not in self.entities_relevant_cooccurences:
+                                self.entities_relevant_cooccurences.update({entity2: {entity1: 1}})
+                            else:
+                                try:
+                                    count = self.entities_relevant_cooccurences[entity2][entity1]
+                                    self.entities_relevant_cooccurences[entity2].update({entity1: count+1})
+                                except KeyError:
+                                    self.entities_relevant_cooccurences[entity2].update({entity1: 1})
 
     def print_info(self):
         for entity, count in self.entities_relevant_appearances.items():
@@ -123,7 +141,7 @@ class Data:
 
         self.graph = nx.from_dict_of_dicts(dod)
 
-    def draw_graph(self, topics):
+    def draw_graph(self):
         plot = Plot(plot_width=1000, plot_height=1000, x_range=Range1d(-1.1,1.1), y_range=Range1d(-1.1,1.1))
 
         plot.add_tools(HoverTool(tooltips=[("entity", "@entity")]), TapTool(), BoxSelectTool(), WheelZoomTool())
