@@ -10,7 +10,6 @@ How to use this script?
 
 look in the main part down below
 
-
 """
 
 
@@ -81,6 +80,7 @@ def save_all_text(new_path):
         raw = ReutherAPIWrapper("HackZurichAPI", "8XtQb447")  # instantiate and gain access token
         channels = raw.get_channel_aliasis()  # get a list of channels
         print(channels)
+        g = open(new_path+'/map')
         for channel in channels:
             items_list = raw.get_items_meta_without_link_list(channel)
             for items in items_list:
@@ -89,8 +89,10 @@ def save_all_text(new_path):
                     text = content["body_xhtml"]
                     with open(new_path + '/' + str(count) + ".txt", 'w') as f:
                         f.write(text)
+                    g.write('{ \''+ str(count) +'\' : [ \'channel\' : \'' + channel + '\']')
                     count += 1
                     print(count)
+        g.close()
 
 
 if __name__ == '__main__':
