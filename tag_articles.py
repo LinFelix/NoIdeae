@@ -2,6 +2,7 @@ import os
 import sys
 sys.path.append('libs/')
 import reutherAPIwrapper
+from class_parser import Article, ArticleData
 from perm import queryPerm
 
 
@@ -54,3 +55,9 @@ if __name__=='__main__':
     print('Querying perm..')
     tagger = queryPerm(clean_data, output_dir)
     print('Done.')
+    # Start parsing data
+    art_data = ArticleData()
+    art_data.parse_data(output_dir)
+    print()
+
+
