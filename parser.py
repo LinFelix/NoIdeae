@@ -2,6 +2,7 @@
 from unidecode import unidecode
 import json
 import os
+import numpy as np
 
 class Persons(object):
     def __init__(self):
@@ -12,9 +13,19 @@ class Persons(object):
         self.id.append(key)
         self.data.append(data)
 
-    def print_data(self):
+    def get_type(self, typ):
+        typ = str(typ)
+        types = []
         for idx, id in enumerate(self.id):
-            print(self.data[idx])
+            if '_typeGroup' in self.data[idx].keys() and self.data[idx]['_typeGroup'] == typ:
+                types.append(self.data[idx])
+        return types
+
+    def get_keys(self):
+        keys = []
+        for idx, id in enumerate(self.id):
+            keys.append(self.data[idx].keys())
+        return keys
 
     def query(self, info):
         info = str(info)
@@ -25,11 +36,23 @@ class Persons(object):
                     response.append(data)
         return response
 
+    def print_key_data(self, key):
+        key = str(key)
+        for idx, id in enumerate(self.id):
+            if key in self.data[idx].keys():
+                print(self.data[idx][key])
+
+    def print_data(self):
+        for idx, id in enumerate(self.id):
+            print(self.data[idx])
+
+
 
 class Parser(object):
     def __init__(self, data_path):
         self.data_path = data_path
         self.informations = Persons()
+        self.names = []
 
     def _decode_list(self, data):
         rv = []
@@ -71,8 +94,20 @@ class Parser(object):
         for key in data.keys():
             self.informations.add_data(key, data[key])
 
+        for idx, id in enumerate(self.informations.id):
+            if 'name' in self.informations.data[idx].keys():
+                self.names.append(self.informations.data[idx]['name'])
+
     def query(self, info):
         return self.informations.query(info)
+
+    def get_relevant_entity(self, relevance):
+        relevant = []
+        entities = self.informations.get_type('entities')
+        for ent in entities:
+            if float(ent['relevance']) >= relevance:
+                relevant.append(ent)
+        return relevant
 
 
 if __name__=='__main__':
@@ -80,4 +115,7 @@ if __name__=='__main__':
     parser = Parser(data_path)
 
     parser.load_data('sampletext.json')
-    print(parser.query(3))
+
+    ents = parser.get_relevant_entity(0.6)
+    for ent in ents:
+        print(ent['name'])
