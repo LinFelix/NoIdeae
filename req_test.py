@@ -26,7 +26,7 @@ class dataCollect(object):
             json.dump(data, outfile)
 
 if __name__=='__main__':
-    url = 'http://srgssr-prod.apigee.net/polis-api/Polis.Official'
+    url = 'http://srgssr-prod.apigee.net/webservice/swi-eng-2.0'
     values = {'apikey' : 'uA9m9sTbOGNAsyDCIy4DtWQNV1udAV4p'}
 
     requester = dataCollect(url=url)
