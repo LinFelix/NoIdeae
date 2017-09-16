@@ -27,6 +27,7 @@ class Article:
                     if relevance > threshold:
                         self.important_entities[entity] = (relevance, num)
                 elif type_group == 'socialTag':
+                    print(value)
                     name = value['name']
                     importance = value['importance']
                     self.socialTags[name] = importance
@@ -43,7 +44,7 @@ class Article:
 
     def get_freq_entities(self, n_threshold):
         freq_ent = {}
-        for ent, (rel, n_count) in self.entities.iteritems():
+        for ent, (rel, n_count) in self.entities.items():
             if n_count >= n_threshold:
                 freq_ent[ent] = n_count
 
@@ -60,15 +61,15 @@ class ArticleData:
         for file in glob.glob(folder_path + "*.json"):
             self.data.append(Article(file, threshold))
             rel_entities = self.data[-1].get_rel_entities()
-            freq_entities = self.data[-1].get_freq_entities()
+            freq_entities = self.data[-1].get_freq_entities(n_threshold)
             for entity in rel_entities:
-                if self.rel_entities.has_key(entity):
+                if entity in self.rel_entities:
                     self.rel_entities[entity].update(rel_entities)
                 else:
                     self.rel_entities[entity] = set(rel_entities)
 
             for entity in freq_entities:
-                if self.freq_entities.has_key(entity):
+                if entity in self.freq_entities:
                     self.freq_entities[entity].update(freq_entities)
                 else:
                     self.freq_entities[entity] = set(freq_entities)

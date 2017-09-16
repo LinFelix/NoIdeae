@@ -43,9 +43,9 @@ class cleanData(object):
 
 if __name__=='__main__':
     data_dir = 'raw_data'
-    output_dir = 'data'
+    output_dir = os.getcwd()+"/testdata/"
     clean_data = 'clean'
-
+    """
     print("Collecting articles...")
     reutherAPIwrapper.save_all_text(data_dir)
     print('Done.')
@@ -55,9 +55,9 @@ if __name__=='__main__':
     print('Querying perm..')
     tagger = queryPerm(clean_data, output_dir)
     print('Done.')
+    """
     # Start parsing data
     art_data = ArticleData()
     art_data.parse_data(output_dir, 0.6, 10)
-    print()
 
 
