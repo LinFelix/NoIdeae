@@ -51,6 +51,11 @@ function submitmyshit() {
     };
     '{% endfor %}'
     console.log(retobj);
+
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "POST", "/", true);
+    xmlHttp.setRequestHeader("Content-type", "application/json");
+    xmlHttp.send(JSON.stringify({'alias' : retobj }));
 }
 </script>
 </body>
