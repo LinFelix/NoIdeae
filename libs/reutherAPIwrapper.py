@@ -13,8 +13,8 @@ look in the main part down below
 """
 
 
-USERNAME = "YOUR USERNAME"
-PASSWORD = "YOUR PASSWORD"
+USERNAME = "andanis@student.ethz.ch"
+PASSWORD = "Ch4ngeM3"
 AUTH_URL = "https://commerce.reuters.com/rmd/rest/xml/"
 SERVICE_URL_XML = "http://rmb.reuters.com/rmd/rest/xml/"
 SERVICE_URL = "http://rmb.reuters.com/rmd/rest/json/"

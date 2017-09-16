@@ -103,3 +103,5 @@ ENV/
 # Folder
 data/
 .idea/
+raw_data/
+clean/
