@@ -23,10 +23,10 @@
 <div class="container">
 <ul class="collection with-header" id="bla">
     <li class="collection-header"><h5>Choose channels</h5></li>
-    {% for channel in channels %}
+    {% for tag in channels %}
     <li class="collection-item">
-            <input type="checkbox" name="{{channels[channel]}}" id="{{channels[channel]}}" />
-            <label for="{{channels[channel]}}">{{channel}}</label>
+            <input type="checkbox" name="{{tag}}" id="{{tag}}" />
+            <label for="{{tag}}">{{tag}}</label>
         </li>
     {% endfor %}
 </ul>
@@ -44,10 +44,10 @@ function submitmyshit() {
     //for (channell in channels) {
     //    console.log(document.getElementById(channels[channel]));
     //}
-    '{% for channel in channels %}'
-    console.log(document.getElementById('{{channels[channel]}}').checked);
-    if (document.getElementById('{{channels[channel]}}').checked == true){
-        retobj.push('{{channels[channel]}}');
+    '{% for tag in channels %}'
+    console.log(document.getElementById('{{tag}}').checked);
+    if (document.getElementById('{{tag}}').checked == true){
+        retobj.push('{{tag}}');
     };
     '{% endfor %}'
     console.log(retobj);
