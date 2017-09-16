@@ -6,10 +6,12 @@ import matplotlib.pyplot as plt
 
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
-from bokeh.models.graphs import from_networkx
-from bokeh.models import ColumnDataSource, Circle, Plot, Range1d, HoverTool, TapTool, BoxSelectTool, WheelZoomTool
+from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLinkedNodes
+from bokeh.models import ColumnDataSource, Circle, Plot, Range1d, HoverTool, TapTool, BoxSelectTool, WheelZoomTool, MultiLine
 from bokeh.palettes import Spectral4
 from bokeh.models.renderers import GraphRenderer
+
+
 
 if __name__=='__main__':
 
@@ -123,7 +125,7 @@ if __name__=='__main__':
 
     G = nx.from_dict_of_dicts(dod)
 
-    plot = Plot(plot_width=400, plot_height=400, x_range=Range1d(-1.1,1.1), y_range=Range1d(-1.1,1.1))
+    plot = Plot(plot_width=1000, plot_height=1000, x_range=Range1d(-1.1,1.1), y_range=Range1d(-1.1,1.1))
 
     plot.add_tools(HoverTool(tooltips=[("entity", "@entity")]), TapTool(), BoxSelectTool(), WheelZoomTool())
 
@@ -133,6 +135,17 @@ if __name__=='__main__':
 
     graph_renderer.node_renderer.data_source.column_names.append("entity")
     graph_renderer.node_renderer.data_source.data.update({"entity": all_entities})
+
+    graph_renderer.node_renderer.glyph = Circle(size=5, fill_color=Spectral4[0])
+    graph_renderer.node_renderer.selection_glyph = Circle(size=5, fill_color=Spectral4[2])
+    graph_renderer.node_renderer.hover_glyph = Circle(size=8, fill_color=Spectral4[1])
+
+    graph_renderer.edge_renderer.glyph = MultiLine(line_color="#CCCCCC", line_alpha=0.8, line_width=3)
+    graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color=Spectral4[2], line_width=3)
+    graph_renderer.edge_renderer.hover_glyph = MultiLine(line_color=Spectral4[1], line_width=4)
+
+    graph_renderer.selection_policy = NodesAndLinkedEdges()
+    graph_renderer.inspection_policy = NodesAndLinkedEdges()
 
     plot.renderers.append(graph_renderer)
 
