@@ -8,7 +8,7 @@ from bokeh.io import show, output_file
 from bokeh.plotting import figure
 from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLinkedNodes
 from bokeh.models import ColumnDataSource, Circle, Plot, Range1d, HoverTool, TapTool, BoxSelectTool, WheelZoomTool, MultiLine
-from bokeh.palettes import Spectral4
+from bokeh.palettes import Spectral4, Category20
 from bokeh.models.renderers import GraphRenderer
 
 
@@ -22,6 +22,7 @@ class Data:
         self.graph = None
         self.MIN_RELEVANCE = MIN_RELEVANCE
         self.MIN_SCORE = MIN_SCORE
+        self.query_topics = query_topics
         self.parse(datadir, query_topics)
 
     def parse(self, datadir, query_topics):
@@ -39,10 +40,10 @@ class Data:
 
                 if type_group == "topics" and tag["score"] >= self.MIN_SCORE:
                     topic = tag["name"]
-                    if topic not in query_topics:
-                        continue
-                    else:
+                    if topic in query_topics:
                         any_topic_present=True
+                        break
+
 
             if any_topic_present:
                 for tag in article_data.values():
@@ -142,24 +143,43 @@ class Data:
         self.graph = nx.from_dict_of_dicts(dod)
 
     def draw_graph(self):
+
+        if len(self.query_topics)<=10:
+            map_topic_to_color = dict(zip(self.query_topics, [Category20[20][2*i] for i in range(len(self.query_topics))]))
+        else:
+            map_topic_to_color = dict(zip(self.query_topics, [Category20[20][i] for i in range(len(self.query_topics))]))
+
+        map_id_to_entity = dict(zip(range(len(self.all_entities)), self.all_entities))
+
+        unique_topic = dict([(entity, max(self.entities_relevant_topics[entity], 
+                            key=self.entities_relevant_topics[entity].get)) for entity in self.all_entities])
+
+        colors = []
+        for i in range(len(self.all_entities)):
+            try:
+                colors.append(map_topic_to_color[unique_topic[map_id_to_entity[i]]])
+            except KeyError:
+                colors.append("#b6b2b2")
+
         plot = Plot(plot_width=1000, plot_height=1000, x_range=Range1d(-1.1,1.1), y_range=Range1d(-1.1,1.1))
 
-        plot.add_tools(HoverTool(tooltips=[("entity", "@entity")]), TapTool(), BoxSelectTool(), WheelZoomTool())
+        plot.add_tools(HoverTool(tooltips=[("entity", "@entity"),("topic", "@topics")]), TapTool(), BoxSelectTool(), WheelZoomTool())
 
-        graph = from_networkx(self.graph, nx.spring_layout, scale=2,
-                              center=(0, 0))
+        graph = from_networkx(self.graph, nx.spring_layout, scale=2, center=(0, 0))
 
-        graph.node_renderer.glyph = Circle(size=15, fill_color=Spectral4[0])
+        graph.node_renderer.data_source.column_names.append("topics")
+        graph.node_renderer.data_source.data.update({"topics": [unique_topic[map_id_to_entity[i]] for i in range(len(self.all_entities))]})
+
+        graph.node_renderer.data_source.column_names.append("colors")
+        graph.node_renderer.data_source.data.update({"colors": colors})
 
         graph.node_renderer.data_source.column_names.append("entity")
-        graph.node_renderer.data_source.data.update({"entity":
-                                                         self.all_entities})
+        graph.node_renderer.data_source.data.update({"entity": self.all_entities})
 
-        graph.node_renderer.glyph = Circle(size=8, fill_color=Spectral4[0])
-        graph.node_renderer.selection_glyph = Circle(size=8,
-                                                     fill_color=Spectral4[2])
-        graph.node_renderer.hover_glyph = Circle(size=12,
-                                                 fill_color=Spectral4[1])
+        graph.node_renderer.glyph = Circle(size=8, fill_color="colors")
+
+        graph.node_renderer.selection_glyph = Circle(size=8, fill_color=Spectral4[2])
+        graph.node_renderer.hover_glyph = Circle(size=12, fill_color=Spectral4[1])
 
         graph.edge_renderer.glyph = MultiLine(line_color="#CCCCCC",
                                               line_alpha=0.8, line_width=1.5)
@@ -179,11 +199,11 @@ class Data:
 
 if __name__ == '__main__':
 
-    MIN_RELEVANCE = 0.8
+    MIN_RELEVANCE = 0.6
     MIN_SCORE = 0.9
 
     datadir = 'data'
 
-    data_graph = Data(datadir)
+    data_graph = Data(["Politics", "Sports", "Education"])
     data_graph.build_graph()
     data_graph.draw_graph()
