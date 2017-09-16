@@ -14,3 +14,9 @@ def post_choosen_channel_alias():
     print("blubb")
     print(request.json['alias'])
     return "Hello world"
+
+
+
+def pass_list_of_tags(list_of_tags):
+    #  list_of_tags is a list of Strings
+    pass
