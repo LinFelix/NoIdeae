@@ -1,3 +1,4 @@
+from __future__ import division
 import os
 import sys
 sys.path.append('libs/')
@@ -24,7 +25,6 @@ class cleanData(object):
                 done = True
                 break
 
-
     def clean_file(self, article, i):
         cleaned_file = open(os.path.join(self.cleaned_data, 'cl{}.txt'.format(i)), 'w')
 
@@ -46,18 +46,19 @@ if __name__=='__main__':
     output_dir = 'data'
     clean_data = 'clean'
 
-    print("Collecting articles...")
-    reutherAPIwrapper.save_all_text(data_dir)
-    print('Done.')
-    print('Cleaning files...')
-    cleanData(data_dir, clean_data)
-    print('Done')
-    print('Querying perm..')
-    tagger = queryPerm(clean_data, output_dir)
-    print('Done.')
+    # print("Collecting articles...")
+    # reutherAPIwrapper.save_all_text(data_dir)
+    # print('Done.')
+    # print('Cleaning files...')
+    # cleanData(data_dir, clean_data)
+    # print('Done')
+    # print('Querying perm..')
+    # tagger = queryPerm(clean_data, output_dir)
     # Start parsing data
     art_data = ArticleData()
-    art_data.parse_data(output_dir, 0.6, 10)
-    print()
-
+    output_dir = os.getcwd()
+    output_dir += '/data/'
+    art_data.parse_data(output_dir, 0.5, 10)
+    graph = art_data.build_graph()
+    print(graph.nodes())
 
