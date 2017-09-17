@@ -9,4 +9,4 @@ flask run
 
 Go to localhost:5000 and start discovering trends!
 
-![](https://ibb.co/dipzpQ)
+<img src=https://ibb.co/dipzpQ>
