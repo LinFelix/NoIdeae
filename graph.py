@@ -2,7 +2,6 @@ import networkx as nx
 import os
 import json
 import sys
-import matplotlib.pyplot as plt
 import numpy as np
 
 from bokeh.io import show, output_file
