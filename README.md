@@ -2,6 +2,8 @@
 
 ## Getting started
 
+Please use Python 3.x and install the Python dependencies flask, bokeh, networkx.
+
 ```shell
 export FLASK_APP=app.py
 flask run
