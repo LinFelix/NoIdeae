@@ -3,6 +3,7 @@ import os
 import json
 import sys
 import matplotlib.pyplot as plt
+import numpy as np
 
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
@@ -167,6 +168,10 @@ class Data:
 
         graph = from_networkx(self.graph, nx.spring_layout, scale=2, center=(0, 0))
 
+        graph.node_renderer.data_source.column_names.append("size")
+        graph.node_renderer.data_source.data.update(
+            {"size": [np.log(self.entities_relevant_appearances[map_id_to_entity[i]])*5+10 for i in range(len(self.all_entities))]})
+
         graph.node_renderer.data_source.column_names.append("topics")
         graph.node_renderer.data_source.data.update({"topics": [unique_topic[map_id_to_entity[i]] for i in range(len(self.all_entities))]})
 
@@ -176,7 +181,7 @@ class Data:
         graph.node_renderer.data_source.column_names.append("entity")
         graph.node_renderer.data_source.data.update({"entity": self.all_entities})
 
-        graph.node_renderer.glyph = Circle(size=8, fill_color="colors")
+        graph.node_renderer.glyph = Circle(size="size", fill_color="colors")
 
         graph.node_renderer.selection_glyph = Circle(size=8, fill_color=Spectral4[2])
         graph.node_renderer.hover_glyph = Circle(size=12, fill_color=Spectral4[1])
