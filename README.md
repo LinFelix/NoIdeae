@@ -8,3 +8,5 @@ flask run
 ```
 
 Go to localhost:5000 and start discovering trends!
+
+![](https://ibb.co/dipzpQ)
