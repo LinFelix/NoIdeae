@@ -2,7 +2,7 @@ import networkx as nx
 import os
 import json
 import sys
-import numpy as np
+import math
 
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
@@ -173,7 +173,7 @@ class Data:
 
         graph.node_renderer.data_source.column_names.append("size")
         graph.node_renderer.data_source.data.update(
-            {"size": [np.log(self.entities_relevant_appearances[map_id_to_entity[i]])*5+10 for i in range(len(self.all_entities))]})
+            {"size": [math.log(self.entities_relevant_appearances[map_id_to_entity[i]])*5+10 for i in range(len(self.all_entities))]})
 
         graph.node_renderer.data_source.column_names.append("topics")
         graph.node_renderer.data_source.data.update({"topics": [unique_topic[map_id_to_entity[i]] for i in range(len(self.all_entities))]})
