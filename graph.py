@@ -8,7 +8,7 @@ import numpy as np
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
 from bokeh.models.graphs import from_networkx, NodesAndLinkedEdges, EdgesAndLinkedNodes
-from bokeh.models import ColumnDataSource, Circle, Plot, Range1d, HoverTool, TapTool, LassoSelectTool, WheelZoomTool, MultiLine, Div, CustomJS
+from bokeh.models import ColumnDataSource, Circle, Plot, Range1d, HoverTool, TapTool, LassoSelectTool, WheelZoomTool, MultiLine, Div, CustomJS, PanTool
 from bokeh.palettes import Spectral4, Category20
 from bokeh.models.renderers import GraphRenderer
 from bokeh import events
@@ -141,7 +141,7 @@ class Data:
                     id2 = map_entity_to_id[entity2]
                     dod[id1].update({id2: {"weight": count}})
             except KeyError:
-                continue
+                continue    
 
         self.graph = nx.from_dict_of_dicts(dod)
 
@@ -164,9 +164,11 @@ class Data:
             except KeyError:
                 colors.append("#b6b2b2")
 
-        plot = Plot(plot_width=1000, plot_height=1000, x_range=Range1d(-1.1,1.1), y_range=Range1d(-1.1,1.1), toolbar_location="below")
+        plot = Plot(plot_width=900, plot_height=900, x_range=Range1d(-1.1,1.1), y_range=Range1d(-1.1,1.1), toolbar_location="below")
 
         plot.add_tools(HoverTool(tooltips=[("entity", "@entity"),("topic", "@topics")]), TapTool(), WheelZoomTool(), LassoSelectTool())
+        plot.background_fill_color = "#d2d2d2"
+        plot.background_fill_alpha = 0.25
 
         graph = from_networkx(self.graph, nx.spring_layout, scale=2, center=(0, 0))
 
@@ -212,7 +214,7 @@ class Data:
                 for (i = 0; i < inds.length; i++) {
                     args.push(cb_obj.data['entity'][inds[i]]);
                 }
-                div.text = "<font size='4' color='#9e9e9e'><b>"+args.join("<br />")+"</b></font>"
+                div.text = "<font size='5' color='#9e9e9e'><b>"+args.join("<br />")+"</b></font>"
                 """
             )
 
